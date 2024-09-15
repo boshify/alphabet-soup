@@ -24,13 +24,14 @@ def get_google_autosuggest(keyword, country_code='us', language_code='en'):
 
 # Main Streamlit app
 def main():
-    st.title("Enhanced Google Autosuggest Scraper")
+    st.title("Enhanced Google Autosuggest Scraper with Wildcards")
 
     st.markdown("""
     ## How It Works
     - **Enter a seed keyword**: The app will scrape Google Autosuggest results for that keyword.
     - **Alphabet Soup Method**: It repeats the operation for every letter of the alphabet (a-z) appended to the seed keyword.
-    - **Question Modifiers**: It also applies common question words like "is," "are," "does," and comparative forms like "vs."
+    - **Wildcard Searches**: Incorporates `*` wildcard where relevant for additional query variations.
+    - **Content-Type Modifiers**: Additional modifiers to capture common content like "benefits", "review", "reddit", etc.
     """)
 
     seed_keyword = st.text_input("Enter your seed keyword:")
@@ -48,12 +49,18 @@ def main():
             for i in range(0, 10):
                 keywords.append(seed_keyword + ' ' + str(i))
             
-            # Add modifiers for questions and comparisons
+            # Add wildcard searches where relevant
+            wildcard_keywords = [f'* {seed_keyword}', f'{seed_keyword} *']
+            keywords.extend(wildcard_keywords)
+            
+            # Add common content-type modifiers
             modifiers = ['who', 'what', 'when', 'where', 'why', 'how', 
                          'is', 'are', 'does', 'can', 'should', 'could', 
                          'will', 'would', 'may', 'might', 'must', 
-                         'vs', 'comparison', 'advantages', 'disadvantages']
-            
+                         'vs', 'comparison', 'advantages', 'disadvantages',
+                         'benefits', 'example', 'template', 'is ' + seed_keyword + ' worth it', 
+                         'reddit', 'services', 'review', 'case study', 'best', 'guide', 'pricing', 'features', 'faq', 'problems', 'alternatives']
+
             # Append modifiers to the seed keyword
             for modifier in modifiers:
                 keywords.append(f'{modifier} {seed_keyword}')
