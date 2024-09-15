@@ -22,15 +22,25 @@ def get_google_autosuggest(keyword, country_code='us', language_code='en'):
             suggestions.append(suggestion_text)
     return suggestions
 
+# Function to remove duplicates
+def remove_duplicates(suggestions):
+    seen = set()
+    unique_suggestions = []
+    for suggestion in suggestions:
+        if suggestion['Query'] not in seen:
+            seen.add(suggestion['Query'])
+            unique_suggestions.append(suggestion)
+    return unique_suggestions
+
 # Main Streamlit app
 def main():
-    st.title("Enhanced Google Autosuggest Scraper with Wildcards")
+    st.title("Enhanced Google Autosuggest Scraper with Wildcards and Duplicate Removal")
 
     st.markdown("""
     ## How It Works
     - **Enter a seed keyword**: The app will scrape Google Autosuggest results for that keyword.
     - **Alphabet Soup Method**: It repeats the operation for every letter of the alphabet (a-z) appended to the seed keyword.
-    - **Wildcard Searches**: Incorporates `*` wildcard where relevant for additional query variations.
+    - **Wildcard Searches**: Wildcard searches are now merged into their corresponding modifiers.
     - **Content-Type Modifiers**: Additional modifiers to capture common content like "benefits", "review", "reddit", etc.
     """)
 
@@ -46,12 +56,10 @@ def main():
             # Generate additional keywords by appending a-z and 0-9
             for c in ascii_lowercase:
                 keywords.append(seed_keyword + ' ' + c)
+                keywords.append(f'* {seed_keyword} {c}')
+            
             for i in range(0, 10):
                 keywords.append(seed_keyword + ' ' + str(i))
-            
-            # Add wildcard searches where relevant
-            wildcard_keywords = [f'* {seed_keyword}', f'{seed_keyword} *']
-            keywords.extend(wildcard_keywords)
             
             # Add common content-type modifiers
             modifiers = ['who', 'what', 'when', 'where', 'why', 'how', 
@@ -59,11 +67,13 @@ def main():
                          'will', 'would', 'may', 'might', 'must', 
                          'vs', 'comparison', 'advantages', 'disadvantages',
                          'benefits', 'example', 'template', 'is ' + seed_keyword + ' worth it', 
-                         'reddit', 'services', 'review', 'case study', 'best', 'guide', 'pricing', 'features', 'faq', 'problems', 'alternatives']
+                         'reddit', 'services', 'review', 'contract', 'agreement', 'books', 
+                         'newsletters', 'podcasts', 'influencers', 'blogs', 'courses', 'training']
 
             # Append modifiers to the seed keyword
             for modifier in modifiers:
                 keywords.append(f'{modifier} {seed_keyword}')
+                keywords.append(f'* {modifier} {seed_keyword}')
             
             # List to store all suggestions
             sugg_all = []
@@ -74,6 +84,9 @@ def main():
                 if suggestions:
                     for suggestion in suggestions:
                         sugg_all.append({'Modifier': kw.replace(seed_keyword, '').strip() or 'Original', 'Query': suggestion})
+            
+            # Remove duplicates
+            sugg_all = remove_duplicates(sugg_all)
             
             # Display the results
             if sugg_all:
