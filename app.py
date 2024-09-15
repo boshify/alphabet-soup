@@ -34,13 +34,13 @@ def remove_duplicates(suggestions):
 
 # Main Streamlit app
 def main():
-    st.title("Enhanced Google Autosuggest Scraper with Wildcards and Duplicate Removal")
+    st.title("Advanced Google Autosuggest Scraper with Wildcards and Duplicate Removal")
 
     st.markdown("""
     ## How It Works
     - **Enter a seed keyword**: The app will scrape Google Autosuggest results for that keyword.
     - **Alphabet Soup Method**: It repeats the operation for every letter of the alphabet (a-z) appended to the seed keyword.
-    - **Wildcard Searches**: Wildcard searches are now merged into their corresponding modifiers.
+    - **Wildcard Searches**: Wildcard searches are applied before, after, and sometimes in-between the keyword and its modifiers.
     - **Content-Type Modifiers**: Additional modifiers to capture common content like "benefits", "review", "reddit", etc.
     """)
 
@@ -49,19 +49,22 @@ def main():
     if seed_keyword:
         if st.button('Scrape Suggestions'):
             st.write("Fetching suggestions...")
-            
+
             # List to store keyword variations
             keywords = [seed_keyword]
-            
+
             # Generate additional keywords by appending a-z and 0-9
             for c in ascii_lowercase:
                 keywords.append(seed_keyword + ' ' + c)
-                keywords.append(f'* {seed_keyword} {c}')
+                keywords.append(f'{seed_keyword} {c} *')  # Wildcard after
+                keywords.append(f'* {seed_keyword} {c}')  # Wildcard before
             
             for i in range(0, 10):
                 keywords.append(seed_keyword + ' ' + str(i))
+                keywords.append(f'{seed_keyword} {str(i)} *')  # Wildcard after
+                keywords.append(f'* {seed_keyword} {str(i)}')  # Wildcard before
             
-            # Add common content-type modifiers
+            # Add common content-type and question modifiers
             modifiers = ['who', 'what', 'when', 'where', 'why', 'how', 
                          'is', 'are', 'does', 'can', 'should', 'could', 
                          'will', 'would', 'may', 'might', 'must', 
@@ -70,11 +73,17 @@ def main():
                          'reddit', 'services', 'review', 'contract', 'agreement', 'books', 
                          'newsletters', 'podcasts', 'influencers', 'blogs', 'courses', 'training']
 
-            # Append modifiers to the seed keyword
+            # Append modifiers with wildcard variations
             for modifier in modifiers:
+                # Standard modifier without wildcards
                 keywords.append(f'{modifier} {seed_keyword}')
+                # Wildcard before and after
                 keywords.append(f'* {modifier} {seed_keyword}')
-            
+                keywords.append(f'{modifier} {seed_keyword} *')
+                # Wildcard in-between where applicable
+                keywords.append(f'{modifier} * {seed_keyword}')
+                keywords.append(f'* {seed_keyword} {modifier}')
+
             # List to store all suggestions
             sugg_all = []
             
@@ -83,7 +92,9 @@ def main():
                 suggestions = get_google_autosuggest(kw)
                 if suggestions:
                     for suggestion in suggestions:
-                        sugg_all.append({'Modifier': kw.replace(seed_keyword, '').strip() or 'Original', 'Query': suggestion})
+                        # Renaming wildcards to their parent modifier
+                        parent_modifier = kw.replace('*', '').replace(seed_keyword, '').strip() or 'Original'
+                        sugg_all.append({'Modifier': parent_modifier, 'Query': suggestion})
             
             # Remove duplicates
             sugg_all = remove_duplicates(sugg_all)
