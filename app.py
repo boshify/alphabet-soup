@@ -34,7 +34,7 @@ def remove_duplicates(suggestions):
 
 # Main Streamlit app
 def main():
-    st.title("Advanced Google Autosuggest Scraper with Extended Modifiers")
+    st.title("Advanced Google Autosuggest Scraper with Query Type")
 
     st.markdown("""
     ## How It Works
@@ -42,6 +42,7 @@ def main():
     - **Alphabet Soup Method**: It repeats the operation for every letter of the alphabet (a-z) appended to the seed keyword.
     - **Wildcard Searches**: Wildcard searches are applied before, after, and sometimes in-between the keyword and its modifiers.
     - **Extended Content-Type and Question Modifiers**: Expanded to include various question, action, comparison, and issue modifiers.
+    - **Query Types**: Each query is categorized by its type, such as Questions, Actions, Comparisons, Issues, Alphabetic, or Numbers.
     """)
 
     seed_keyword = st.text_input("Enter your seed keyword:")
@@ -51,65 +52,54 @@ def main():
             st.write("Fetching suggestions...")
 
             # List to store keyword variations
-            keywords = [seed_keyword]
+            keywords = []
+            query_types = []
 
-            # Generate additional keywords by appending a-z and 0-9
+            # Alphabetic and Number variations
             for c in ascii_lowercase:
                 keywords.append(seed_keyword + ' ' + c)
-                keywords.append(f'{seed_keyword} {c} *')  # Wildcard after
-                keywords.append(f'* {seed_keyword} {c}')  # Wildcard before
+                keywords.append(f'{seed_keyword} {c} *')
+                keywords.append(f'* {seed_keyword} {c}')
+                query_types.extend(['Alphabetic', 'Alphabetic', 'Alphabetic'])
             
             for i in range(0, 10):
                 keywords.append(seed_keyword + ' ' + str(i))
-                keywords.append(f'{seed_keyword} {str(i)} *')  # Wildcard after
-                keywords.append(f'* {seed_keyword} {str(i)}')  # Wildcard before
+                keywords.append(f'{seed_keyword} {str(i)} *')
+                keywords.append(f'* {seed_keyword} {str(i)}')
+                query_types.extend(['Numbers', 'Numbers', 'Numbers'])
 
-            # Extended modifiers brainstormed to capture every possible query
-            modifiers = [
-                # Questions
-                'could', 'would', 'should', 'can', 'will', 'why', 'how', 'is', 'are', 'when', 'where', 'what', 'who', 'does', 'might', 'may',
-                
-                # Actions
-                'learn', 'find', 'use', 'get', 'fix', 'troubleshoot', 'apply', 'configure', 'install', 'remove', 'enable', 'disable',
+            # Extended modifiers grouped by type
+            modifiers_by_type = {
+                'Questions': ['could', 'would', 'should', 'can', 'will', 'why', 'how', 'is', 'are', 'when', 'where', 'what', 'who', 'does', 'might', 'may'],
+                'Actions': ['learn', 'find', 'use', 'get', 'fix', 'troubleshoot', 'apply', 'configure', 'install', 'remove', 'enable', 'disable'],
+                'Comparisons': ['vs', 'comparison', 'advantages', 'disadvantages', 'alternatives'],
+                'Problems': ['broken', 'not working', 'stopped', 'issues', 'errors', 'failed', 'cant', "doesn't", "won't"],
+                'How-To': ['how to', 'steps to', 'guide to', 'tutorial on', 'checklist for', 'setup', 'configure', 'fix'],
+                'Content Types': ['tips', 'techniques', 'strategies', 'best practices', 'reviews', 'case study', 'interview', 'questions', 'research', 'statistics', 'trends'],
+                'Miscellaneous': ['certifications', 'training', 'tools', 'software', 'platforms', 'apps', 'reports', 'conferences', 'troubleshooting', 'events']
+            }
 
-                # Comparisons
-                'vs', 'comparison', 'advantages', 'disadvantages', 'alternatives',
-
-                # Problems
-                'broken', 'not working', 'stopped', 'issues', 'errors', 'failed', 'cant', "doesn't", "won't",
-
-                # How-To
-                'how to', 'steps to', 'guide to', 'tutorial on', 'checklist for', 'setup', 'configure', 'fix',
-
-                # Content Types
-                'tips', 'techniques', 'strategies', 'best practices', 'reviews', 'case study', 'interview', 'questions', 'research', 'statistics', 'trends',
-
-                # Miscellaneous
-                'certifications', 'training', 'tools', 'software', 'platforms', 'apps', 'reports', 'conferences', 'troubleshooting', 'events'
-            ]
-
-            # Append modifiers with wildcard variations
-            for modifier in modifiers:
-                # Standard modifier without wildcards
-                keywords.append(f'{modifier} {seed_keyword}')
-                # Wildcard before and after
-                keywords.append(f'* {modifier} {seed_keyword}')
-                keywords.append(f'{modifier} {seed_keyword} *')
-                # Wildcard in-between where applicable
-                keywords.append(f'{modifier} * {seed_keyword}')
-                keywords.append(f'* {seed_keyword} {modifier}')
+            # Append modifiers with wildcard variations and add to keyword list
+            for query_type, modifier_list in modifiers_by_type.items():
+                for modifier in modifier_list:
+                    keywords.append(f'{modifier} {seed_keyword}')
+                    keywords.append(f'* {modifier} {seed_keyword}')
+                    keywords.append(f'{modifier} {seed_keyword} *')
+                    keywords.append(f'{modifier} * {seed_keyword}')
+                    keywords.append(f'* {seed_keyword} {modifier}')
+                    query_types.extend([query_type] * 5)
 
             # List to store all suggestions
             sugg_all = []
             
             # Fetch suggestions for each keyword variation
-            for kw in keywords:
+            for kw, query_type in zip(keywords, query_types):
                 suggestions = get_google_autosuggest(kw)
                 if suggestions:
                     for suggestion in suggestions:
                         # Renaming wildcards to their parent modifier
                         parent_modifier = kw.replace('*', '').replace(seed_keyword, '').strip() or 'Original'
-                        sugg_all.append({'Modifier': parent_modifier, 'Query': suggestion})
+                        sugg_all.append({'Modifier': parent_modifier, 'Query': suggestion, 'Type': query_type})
             
             # Remove duplicates
             sugg_all = remove_duplicates(sugg_all)
