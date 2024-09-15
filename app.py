@@ -41,7 +41,7 @@ def main():
     - **Enter a seed keyword**: The app will scrape Google Autosuggest results for that keyword.
     - **Alphabet Soup Method**: It repeats the operation for every letter of the alphabet (a-z) appended to the seed keyword.
     - **Wildcard Searches**: Wildcard searches are applied before, after, and sometimes in-between the keyword and its modifiers.
-    - **Extended Content-Type and Negative Modifiers**: Added new modifiers like "calculator", "checklist", "how to", and more.
+    - **Extended Content-Type and Question Modifiers**: Expanded to include various question, action, comparison, and issue modifiers.
     """)
 
     seed_keyword = st.text_input("Enter your seed keyword:")
@@ -63,22 +63,29 @@ def main():
                 keywords.append(seed_keyword + ' ' + str(i))
                 keywords.append(f'{seed_keyword} {str(i)} *')  # Wildcard after
                 keywords.append(f'* {seed_keyword} {str(i)}')  # Wildcard before
-            
-            # Add common content-type, question, and negative modifiers
+
+            # Extended modifiers brainstormed to capture every possible query
             modifiers = [
-                'who', 'what', 'when', 'where', 'why', 'how', 
-                'is', 'are', 'does', 'can', 'should', 'could', 
-                'will', 'would', 'may', 'might', 'must', 
-                'vs', 'comparison', 'advantages', 'disadvantages',
-                'benefits', 'example', 'template', 'is ' + seed_keyword + ' worth it', 
-                'reddit', 'services', 'review', 'contract', 'agreement', 'books', 
-                'newsletters', 'podcasts', 'influencers', 'blogs', 'courses', 'training',
-                'calculator', 'checklist', 'case study', 'interview', 'questions', 
-                'research', 'statistics', 'trends', 'job', 'tips', 'strategies', 'techniques',
-                'certifications', 'conferences', 'tools', 'software', 'platforms', 'apps',
-                'events', 'reports', 'skills', 'troubleshooting', 'best practices', 'fix',
-                'broken', 'not working', 'cant', "doesn't", "won't", 'stopped', 
-                'how to', 'learn', 'alternatives'
+                # Questions
+                'could', 'would', 'should', 'can', 'will', 'why', 'how', 'is', 'are', 'when', 'where', 'what', 'who', 'does', 'might', 'may',
+                
+                # Actions
+                'learn', 'find', 'use', 'get', 'fix', 'troubleshoot', 'apply', 'configure', 'install', 'remove', 'enable', 'disable',
+
+                # Comparisons
+                'vs', 'comparison', 'advantages', 'disadvantages', 'alternatives',
+
+                # Problems
+                'broken', 'not working', 'stopped', 'issues', 'errors', 'failed', 'cant', "doesn't", "won't",
+
+                # How-To
+                'how to', 'steps to', 'guide to', 'tutorial on', 'checklist for', 'setup', 'configure', 'fix',
+
+                # Content Types
+                'tips', 'techniques', 'strategies', 'best practices', 'reviews', 'case study', 'interview', 'questions', 'research', 'statistics', 'trends',
+
+                # Miscellaneous
+                'certifications', 'training', 'tools', 'software', 'platforms', 'apps', 'reports', 'conferences', 'troubleshooting', 'events'
             ]
 
             # Append modifiers with wildcard variations
