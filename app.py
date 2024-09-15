@@ -34,14 +34,14 @@ def remove_duplicates(suggestions):
 
 # Main Streamlit app
 def main():
-    st.title("Advanced Google Autosuggest Scraper with Wildcards and Duplicate Removal")
+    st.title("Advanced Google Autosuggest Scraper with Extended Modifiers")
 
     st.markdown("""
     ## How It Works
     - **Enter a seed keyword**: The app will scrape Google Autosuggest results for that keyword.
     - **Alphabet Soup Method**: It repeats the operation for every letter of the alphabet (a-z) appended to the seed keyword.
     - **Wildcard Searches**: Wildcard searches are applied before, after, and sometimes in-between the keyword and its modifiers.
-    - **Content-Type Modifiers**: Additional modifiers to capture common content like "benefits", "review", "reddit", etc.
+    - **Extended Content-Type and Negative Modifiers**: Added new modifiers like "calculator", "checklist", "how to", and more.
     """)
 
     seed_keyword = st.text_input("Enter your seed keyword:")
@@ -64,14 +64,22 @@ def main():
                 keywords.append(f'{seed_keyword} {str(i)} *')  # Wildcard after
                 keywords.append(f'* {seed_keyword} {str(i)}')  # Wildcard before
             
-            # Add common content-type and question modifiers
-            modifiers = ['who', 'what', 'when', 'where', 'why', 'how', 
-                         'is', 'are', 'does', 'can', 'should', 'could', 
-                         'will', 'would', 'may', 'might', 'must', 
-                         'vs', 'comparison', 'advantages', 'disadvantages',
-                         'benefits', 'example', 'template', 'is ' + seed_keyword + ' worth it', 
-                         'reddit', 'services', 'review', 'contract', 'agreement', 'books', 
-                         'newsletters', 'podcasts', 'influencers', 'blogs', 'courses', 'training']
+            # Add common content-type, question, and negative modifiers
+            modifiers = [
+                'who', 'what', 'when', 'where', 'why', 'how', 
+                'is', 'are', 'does', 'can', 'should', 'could', 
+                'will', 'would', 'may', 'might', 'must', 
+                'vs', 'comparison', 'advantages', 'disadvantages',
+                'benefits', 'example', 'template', 'is ' + seed_keyword + ' worth it', 
+                'reddit', 'services', 'review', 'contract', 'agreement', 'books', 
+                'newsletters', 'podcasts', 'influencers', 'blogs', 'courses', 'training',
+                'calculator', 'checklist', 'case study', 'interview', 'questions', 
+                'research', 'statistics', 'trends', 'job', 'tips', 'strategies', 'techniques',
+                'certifications', 'conferences', 'tools', 'software', 'platforms', 'apps',
+                'events', 'reports', 'skills', 'troubleshooting', 'best practices', 'fix',
+                'broken', 'not working', 'cant', "doesn't", "won't", 'stopped', 
+                'how to', 'learn', 'alternatives'
+            ]
 
             # Append modifiers with wildcard variations
             for modifier in modifiers:
