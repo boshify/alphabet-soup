@@ -99,7 +99,7 @@ def main():
                     for suggestion in suggestions:
                         # Renaming wildcards to their parent modifier
                         parent_modifier = kw.replace('*', '').replace(seed_keyword, '').strip() or 'Original'
-                        sugg_all.append({'Modifier': parent_modifier, 'Query': suggestion, 'Type': query_type})
+                        sugg_all.append({'Type': query_type, 'Modifier': parent_modifier, 'Query': suggestion})
             
             # Remove duplicates
             sugg_all = remove_duplicates(sugg_all)
