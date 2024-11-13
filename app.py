@@ -3,6 +3,17 @@ import pandas as pd
 import streamlit as st
 from bs4 import BeautifulSoup
 from string import ascii_lowercase
+import random
+
+# Function to get a random user agent
+def get_random_user_agent():
+    user_agents = [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.3 Safari/605.1.15",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0",
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36",
+    ]
+    return random.choice(user_agents)
 
 # Function to get Google Autosuggest suggestions
 def get_google_autosuggest(keyword, country_code='us', language_code='en'):
@@ -13,7 +24,10 @@ def get_google_autosuggest(keyword, country_code='us', language_code='en'):
         'gl': country_code,
         'q': keyword
     }
-    response = requests.get(url, params=params)
+    headers = {
+        'User-Agent': get_random_user_agent()
+    }
+    response = requests.get(url, params=params, headers=headers)
     suggestions = []
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'xml')
